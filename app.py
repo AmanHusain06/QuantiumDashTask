@@ -2,7 +2,6 @@ import pandas as pd
 from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 
-# Load data
 df = pd.read_csv("processed_data.csv")
 df["Date"] = pd.to_datetime(df["Date"])
 
@@ -28,6 +27,7 @@ app.layout = html.Div(
             children=[
                 html.H1(
                     "Soul Foods Pink Morsel Sales Dashboard",
+                    id="app-header",
                     style={
                         "textAlign": "center",
                         "marginBottom": "10px",
@@ -55,7 +55,7 @@ app.layout = html.Div(
                 ),
 
                 dcc.RadioItems(
-                    id="region-filter",
+                    id="region-picker",
                     options=[
                         {"label": "All", "value": "all"},
                         {"label": "North", "value": "north"},
@@ -72,7 +72,7 @@ app.layout = html.Div(
                     }
                 ),
 
-                dcc.Graph(id="sales-line-chart")
+                dcc.Graph(id="sales-chart")
             ]
         )
     ]
@@ -80,8 +80,8 @@ app.layout = html.Div(
 
 
 @app.callback(
-    Output("sales-line-chart", "figure"),
-    Input("region-filter", "value")
+    Output("sales-chart", "figure"),
+    Input("region-picker", "value")
 )
 def update_chart(selected_region):
     filtered_df = df.copy()
@@ -106,24 +106,7 @@ def update_chart(selected_region):
     fig.update_layout(
         plot_bgcolor="white",
         paper_bgcolor="white",
-        title_x=0.5,
-        font=dict(size=14),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor="lightgray")
-    )
-
-    fig.add_vline(
-        x="2021-01-15",
-        line_dash="dash",
-        line_color="red"
-    )
-
-    fig.add_annotation(
-        x="2021-01-15",
-        y=daily_sales["Sales"].max() if not daily_sales.empty else 0,
-        text="Price increase",
-        showarrow=True,
-        arrowhead=1
+        title_x=0.5
     )
 
     return fig
